@@ -8,17 +8,15 @@ talk.talk.init();
 Puck p;
 p.init(0);
 
-8 => int NUM_LEDS;
+16 => int NUM_LEDS;
 
-for (0 => int i; i < NUM_LEDS; i++) {
-    p.send(i, 0, 0, 0);
-}
-
-p.send(4, 0, 0, 255);
+int inc;
 
 while (true) {
+    inc++;
     for (0 => int i; i < NUM_LEDS; i++) {
+        p.send(i, inc % 1024, 255, 220);
 
     }
-    1::ms => now;
+    100::ms => now;
 }

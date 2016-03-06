@@ -11,5 +11,5 @@ Machine.add(me.dir() + "/NanoKontrol2.ck");
 
 // main program
 3.0::second => now;
-Machine.add(me.dir() + "/nanoShadow.ck");
-// Machine.add(me.dir() + "/shadow-tester.ck");
+// Machine.add(me.dir() + "/nanoShadow.ck");
+Machine.add(me.dir() + "/shadow-tester.ck");

@@ -6,8 +6,8 @@
 #define arduinoID 0
 
 // LED stuff
-#define NUM_LEDS 8
-#define NUM_TLCS 2
+#define NUM_LEDS 16
+#define NUM_TLCS 3
 
 // stores our incoming values
 char bytes[2];
