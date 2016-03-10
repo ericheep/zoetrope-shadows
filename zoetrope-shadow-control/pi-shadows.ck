@@ -1,12 +1,52 @@
-HandshakeID talk;
-2.5::second => now;
 
-// initial handshake between ChucK and Arduinos
-talk.talk.init();
-2.5::second => now;
+SerialIO serial;
+SerialIO.list() @=> string list[];
+-1 => int serial_port;
 
-Puck p;
-p.init(0);
+for (0 => int i; i < list.size(); i++) {
+    if (list[i].find("tty") > 0) {
+        i => serial_port;
+    }
+}
+
+if (serial_port == -1) {
+    <<< "No usbmodem device detected", "" >>>;
+    me.exit();
+}
+
+if (!serial.open(serial_port, SerialIO.B57600, SerialIO.BINARY)) {
+    <<< "Unable to open serial device:", "\t", list[serial_port] >>>;
+}
+else {
+    <<< list[serial_port], "assigned to port", serial_port, "" >>>;
+}
+
+fun void initialize() {
+    2::second => now;
+    [255, 255, 255, 255, 255] @=> int ping[];
+    serial.writeBytes(ping);
+}
+
+// bitwise operations, allows 0-63 and 0-1023
+fun void packet(int led, int hue, int sat, int val) {
+    int bytes[5];
+    0xff => bytes[0];
+    (led << 2) | (hue >> 8) => bytes[1];
+    hue & 255 => bytes[2];
+    sat => bytes[3];
+    val => bytes[4];
+    serial.writeBytes(bytes);
+}
+
+// receives OSC and sends out serial
+fun void send(int led, int hue, int sat, int val) {
+    // ensuring the proper values get sent
+    hue % 1024 => hue;
+    Std.clamp(sat, 0, 255) => sat;
+    Std.clamp(val, 0, 255) => val;
+
+    packet(led, hue, sat, val);
+}
 
 12 => int NUM_LEDS;
 
@@ -248,7 +288,7 @@ fun int convert(float input, float scale) {
 
 fun void updateColors() {
     for (0 => int i; i < NUM_LEDS; i++) {
-        p.send(i, convert((hue[i] + offsetHue[i] + shifting) % 1.0, 1027),
+        send(i, convert((hue[i] + offsetHue[i] + shifting) % 1.0, 1027),
                   convert(sat[i], 255),
                   convert(val[i] * muteVal[i], 255));
     }
